@@ -2,7 +2,6 @@
 
 ejercicio de aprendizaje// 
 copiar en el mismo directorio//
-ejecutar el generador primero 
-genera sudokus correctos con diagonales//
-y sudokan despues//
+ejecutar primero el generador//  
+y despues sudokan //
 
