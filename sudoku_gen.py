@@ -1,135 +1,102 @@
-import numpy 
 import random
+import numpy as np
 
-# Función que controla los índices i y n.
-def cont():
-       global i
-       global n
+# algoritmo para  la comprobación de las diagonales cuadros horizontales y verticales
 
-       if n==0:
-              i=i-1
-              n=8
-       else:
-              n=n-1  
+# Agregando docstrings al código para explicar la funcionalidad de cada método
 
-# Función que evalúa las reglas del Sudoku para la celda actual.         
-def eval():
-       global i
-       global n
+class NewSudokuGeneratorWithDiagonals:
+    """Clase para generar y resolver tableros de Sudoku con reglas adicionales para diagonales."""
 
-       b=1
-       
-       # Comprueba si el número b ya existe en la fila y columna actual.
-       while b<10:
-              c=0
-              t=False
-              # Comprobación en la fila.
-              while c<n:        
-                     if a[i][c]==b:
-                            t=True
-                     c=c+1         
-              d=0  
-              # Comprobación en la columna.            
-              while d<i:               
-                     if a[d][n]==b:
-                            t=True              
-                     d=d+1  
-              e=0  
-              # Comprobación en la diagonal principal si i=n.            
-              if i==n:            
-                     while e<i:
-                            if a[e][e]==b:
-                                   t=True              
-                            e=e+1  
-              f=0  
-              # Comprobación en la diagonal secundaria si i=(8-n).
-              if i==(8-n):
-                     f=0
-                     while f<i:
-                            if a[f][(8-f)]==b:
-                                   t=True              
-                            f=f+1
-              
-              # Determina en qué subgrid de 3x3 se encuentra la celda actual.
-              if i<3 and n<3:
-                     j=0
-                     k=0
-              if i<3 and n>2 and n<6:
-                     j=0
-                     k=3
-              if i<3 and n>5:
-                     j=0
-                     k=6
-              if i>2 and i<6 and n<3:
-                     j=3
-                     k=0
-              if i>2 and i<6 and n>2 and n<6: 
-                     j=3
-                     k=3 
-              if i>2 and i<6 and n>5: 
-                     j=3
-                     k=6
-              if i>5  and n<3: 
-                     j=6
-                     k=0
-              if i>5 and  n>2 and n<6:  
-                     j=6
-                     k=3
-              if i>5 and  n>5 :
-                     j=6
-                     k=6
-              
-              # Comprobación en el subgrid de 3x3.
-              if t==False:
-                     g=j       
-                     while g<(j+3):         
-                            h=k
-                            while h<(k+3):
-                                   if a[g][h]==b:
-                                          t=True 
-                                   h=h+1
-                            g=g+1
-              
-              # Si el número b no existe en la fila, columna y subgrid, se coloca en la celda.
-              if t==False:
-                     a[i][n]=b
-                     b=9
-                     
-              # Si el número b existe y es 9, se vacía la celda y se retrocede a la celda anterior.       
-              if t==True and b==9:
-                     a[i][n]=0
-                     cont()
-                     b=a[i][n]
-                     a[i][n]=0
-                     while b==9:
-                            a[i][n]=0 
-                            cont()
-                            b=a[i][n]
-                           
-              b=b+1               
-                            
-# Inicializa una matriz de 9x9 con todos ceros, que será el tablero de Sudoku.
-a=numpy.zeros((9,9),dtype=int)
+    def __init__(self):
+        """Inicializa un nuevo tablero de Sudoku con ceros."""
+        self.board = np.zeros((9, 9), dtype=int)
 
-global i
-global n
-z=[1,2,3,4,5,6,7,8,9]
-# Llena la primera fila de la matriz con una permutación aleatoria de números del 1 al 9.
-a[0][0],a[0][1],a[0][2],a[0][3],a[0][4],a[0][5],a[0][6],a[0][7],a[0][8]=random.sample(z,9)
+    def is_valid(self, num, pos):
+        """
+        Verifica si un número se puede colocar en una posición específica.
+
+        Args:
+        - num (int): El número que se va a colocar.
+        - pos (tuple): La posición en el tablero donde se colocará el número.
+
+        Returns:
+        - bool: True si el número se puede colocar, False de lo contrario.
+        """
+        # Verificar fila
+        if num in self.board[pos[0]]:
+            return False
+
+        # Verificar columna
+        if num in self.board[:, pos[1]]:
+            return False
+
+        # Verificar cuadrado 3x3
+        x_start = (pos[1] // 3) * 3
+        y_start = (pos[0] // 3) * 3
+        for i in range(0, 3):
+            for j in range(0, 3):
+                if self.board[i + y_start][j + x_start] == num:
+                    return False
+
+        # Verificar diagonal principal
+        if pos[0] == pos[1]:
+            for i in range(0, 9):
+                if self.board[i][i] == num:
+                    return False
+
+        # Verificar diagonal secundaria
+        if pos[0] + pos[1] == 8:
+            for i in range(0, 9):
+                if self.board[i][8 - i] == num:
+                    return False
+
+        return True
+
+    def solve(self):
+        """
+        Resuelve el tablero de Sudoku utilizando backtracking.
+
+        Returns:
+        - bool: True si el tablero se resuelve con éxito, False de lo contrario.
+        """
+        empty = np.where(self.board == 0)
+        empty_positions = list(zip(empty[0], empty[1]))
+        if len(empty_positions) == 0:
+            return True
+        row, col = empty_positions[0]
+        for i in range(1, 10):
+            if self.is_valid(i, (row, col)):
+                self.board[row][col] = i
+                if self.solve():
+                    return True
+                self.board[row][col] = 0
+        return False
+
+    def generate_sudoku(self):
+        """Genera un nuevo tablero de Sudoku resuelto."""
+        self.board[0] = random.sample(range(1, 10), 9)
+        self.solve()
+
+    def save_to_file(self, file_path):
+        """
+        Guarda el tablero de Sudoku en un archivo de texto.
+
+        Args:
+        - file_path (str): La ruta del archivo donde se guardará el tablero.
+        """
+        np.savetxt(file_path, self.board, fmt='%d')
+
+# Ejemplo de uso
+new_sudoku_with_diagonals = NewSudokuGeneratorWithDiagonals()
+new_sudoku_with_diagonals.generate_sudoku()
+print(new_sudoku_with_diagonals.board)
 
 
-i=1
-# Recorre el resto de las celdas en la matriz y llena cada celda con un número del 1 al 9 que cumpla las reglas del Sudoku.
-while i<9:
-       n=0
-       while n<9:
-              eval()
+file_path1 = 'test1.txt'
+new_sudoku_with_diagonals.save_to_file(file_path1)
 
-              n=n+1 
-       i=i+1
-       
-# Imprime el tablero de Sudoku y lo guarda en un archivo de texto llamado 'test1.txt'.
-print(a)
 
-numpy.savetxt('test1.txt', a, fmt='%d')
+
+
 
