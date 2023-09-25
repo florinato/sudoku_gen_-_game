@@ -1,10 +1,6 @@
 import random
 import numpy as np
 
-# algoritmo para  la comprobación de las diagonales cuadros horizontales y verticales
-
-# Agregando docstrings al código para explicar la funcionalidad de cada método
-
 class NewSudokuGeneratorWithDiagonals:
     """Clase para generar y resolver tableros de Sudoku con reglas adicionales para diagonales."""
 
