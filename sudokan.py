@@ -1,9 +1,13 @@
-fimport tkinter as tk
+""" sudokan refactorizado"""
+import tkinter as tk
 import numpy as np
 import random
 
+
 class SudokuGame:
+    """Clase principal para el juego de Sudoku."""
     def __init__(self):
+        """Inicializa el juego de Sudoku."""
         self.k = 0
         self.y = 0
         self.a = np.loadtxt('test1.txt', dtype=int)
@@ -13,6 +17,7 @@ class SudokuGame:
         self.setup_ui()
 
     def fill_initial_numbers(self):
+        """Llena el tablero con números iniciales aleatorios."""
         b = 0
         while b < 25:
             c = random.randint(0, 80)
@@ -72,6 +77,7 @@ class SudokuGame:
         self.raiz.mainloop()
 
     def limpieza(self):
+        """Actualiza la interfaz de usuario basada en el estado del juego."""
         for ss in range(9):
             for sc in range(9):
                 if self.a1[ss, sc] != 0:
@@ -86,6 +92,7 @@ class SudokuGame:
             self.labels[f"strg{str(n) + str(8-n)}"].config(background="#8cfffb")
 
     def evalsqr(self):
+        """Evalúa si hay números duplicados en cada cuadro 3x3 del tablero."""
         cuadrados = (0, 3, 0, 3, 0, 3, 3, 6, 0, 3, 6, 9, 3, 6, 0, 3, 3, 6, 3, 6, 3, 6, 6, 9, 6, 9, 0, 3, 6, 9, 3, 6, 6, 9, 6, 9)
         cuadrados_iter = iter(cuadrados)
         t = False
@@ -109,6 +116,22 @@ class SudokuGame:
         return t
 
     def eval(self):
+        """
+        Evalúa el estado actual del tablero de Sudoku para comprobar si hay algún conflicto.
+
+        Esta función realiza varias comprobaciones:
+        - Verifica si hay números repetidos en cada fila.
+        - Verifica si hay números repetidos en cada columna.
+        - Verifica si hay números repetidos en cada cuadrado de 3x3.
+        - Verifica si hay números repetidos en ambas diagonales.
+
+        Si se encuentra algún número repetido, se cambia el color de fondo de las celdas afectadas.
+
+        El estado del botón 'C' también se actualiza según el resultado de la evaluación.
+
+        Devuelve:
+        t (bool): Verdadero si hay un conflicto, Falso en caso contrario.
+        """
         t = False
         self.limpieza()
         t = self.evalsqr()
@@ -159,6 +182,7 @@ class SudokuGame:
 
 
     def intronum(self, c):
+        """Inserta un número en la posición actual del cursor."""
         if self.a1[self.k][self.y] == 0:
             self.a2[self.k][self.y] = c
             self.eval()
@@ -167,6 +191,7 @@ class SudokuGame:
 
 
     def borrar(self):
+        """Borra el número en la posición actual del cursor."""
         if self.a1[self.k][self.y] == 0:
             self.a2[self.k][self.y] = 0
             self.eval()
@@ -179,6 +204,7 @@ class SudokuGame:
 
 
     def cursor(self, x):
+        """Mueve el cursor en la dirección especificada."""
         if self.eval() == False:
             self.botonc.config(background="silver")
             if x == "^" and self.k > 0:
