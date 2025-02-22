@@ -1,7 +1,8 @@
 """ sudokan refactorizado"""
-import tkinter as tk
-import numpy as np
 import random
+import tkinter as tk
+
+import numpy as np
 
 
 class SudokuGame:
@@ -13,13 +14,25 @@ class SudokuGame:
         self.a = np.loadtxt('test1.txt', dtype=int)
         self.a1 = np.zeros((9, 9), dtype=int)
         self.a2 = np.zeros((9, 9), dtype=int)
-        self.fill_initial_numbers()
         self.setup_ui()
 
-    def fill_initial_numbers(self):
+    def new_game(self, num_initial):
+        """Inicia un nuevo juego con la dificultad especificada."""
+        self.a1 = np.zeros((9, 9), dtype=int)
+        self.a2 = np.zeros((9, 9), dtype=int)
+        self.fill_initial_numbers(num_initial)
+        self.limpieza()
+        for n in range(9):
+            for m in range(9):
+                if self.a1[n, m] != 0:
+                    self.labels[f"strg{str(n) + str(m)}"].config(text=str(self.a1[n, m]), fg="#06b838")
+                else:
+                    self.labels[f"strg{str(n) + str(m)}"].config(text="")
+
+    def fill_initial_numbers(self, num_initial):
         """Llena el tablero con números iniciales aleatorios."""
         b = 0
-        while b < 25:
+        while b < num_initial:
             c = random.randint(0, 80)
             j, g = divmod(c, 9)
             if self.a1[g, j] == 0:
@@ -39,6 +52,20 @@ class SudokuGame:
         self.raiz = tk.Tk()
         self.raiz.title("sudokan")
         self.raiz.geometry('380x540')
+
+
+        menubar = tk.Menu(self.raiz)
+        self.raiz.config(menu=menubar)
+
+        dificultad_menu = tk.Menu(menubar, tearoff=0)
+        menubar.add_cascade(label="Dificultad", menu=dificultad_menu)
+
+        dificultad_menu.add_command(label="Fácil", command=lambda: self.new_game(42)) # Fácil: 40-45 números
+        dificultad_menu.add_command(label="Medio", command=lambda: self.new_game(36)) # Medio: 34-39 números
+        dificultad_menu.add_command(label="Difícil", command=lambda: self.new_game(30)) # Difícil: 28-33 números
+        dificultad_menu.add_command(label="Experto", command=lambda: self.new_game(24)) # Experto: 22-27 números
+        dificultad_menu.add_command(label="Infernal", command=lambda: self.new_game(20)) # Infernal: Menos de 22 números
+
         bg = tk.PhotoImage(file="sudokumask.png")
         label1 = tk.Label(self.raiz, image=bg)
         label1.place(x=0, y=0)
@@ -59,7 +86,7 @@ class SudokuGame:
             self.labels[f"strg{str(n) + str(8-n)}"].config(background="#8cfffb")
 
         self.limpieza()
-        
+
 
 
         botons = ("1", 40, 380, "2", 80, 380, "3", 120, 380, "4", 40, 420, "5", 80, 420, "6", 120, 420, "7", 40, 460, "8", 80, 460, "9", 120, 460)
