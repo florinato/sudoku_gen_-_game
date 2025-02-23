@@ -14,12 +14,14 @@ class SudokuGame:
         self.a = np.loadtxt('test1.txt', dtype=int)
         self.a1 = np.zeros((9, 9), dtype=int)
         self.a2 = np.zeros((9, 9), dtype=int)
+        self.hints_remaining = 0  # Initialize hint counter
         self.setup_ui()
 
     def new_game(self, num_initial):
         """Inicia un nuevo juego con la dificultad especificada."""
         self.a1 = np.zeros((9, 9), dtype=int)
         self.a2 = np.zeros((9, 9), dtype=int)
+        self.hints_remaining = 81 - num_initial # Initialize based on empty cells.
         self.fill_initial_numbers(num_initial)
         self.limpieza()
         for n in range(9):
@@ -101,7 +103,32 @@ class SudokuGame:
         self.botonc = tk.Button(self.raiz, text="C", width=2, bd=5, font=("Roboto Cn", 18), background="silver", command=lambda: self.borrar())
         self.botonc.place(x=260, y=420)
 
+        # Add Hint Button
+        self.hint_button = tk.Button(self.raiz, text="Hint", width=5, bd=5, font=("Roboto Cn", 18), background="silver", command=self.give_hint)
+        self.hint_button.place(x=150, y=500)  # Adjust position as needed
+
+
         self.raiz.mainloop()
+
+    def give_hint(self):
+        """Provides a hint to the player."""
+        if self.hints_remaining > 0:
+            empty_cells = []
+            for r in range(9):
+                for c in range(9):
+                    if self.a1[r, c] == 0:
+                        empty_cells.append((r, c))
+
+            if empty_cells:
+                row, col = random.choice(empty_cells)
+                correct_value = self.a[row, col]
+                self.a1[row, col] = correct_value
+                self.a2[row, col] = correct_value
+                self.labels[f"strg{str(row) + str(col)}"].config(text=str(correct_value), fg="#06b838")
+                self.hints_remaining -= 1
+                self.eval() #update for check conflicts
+            if self.hints_remaining == 0:
+                self.hint_button.config(state=tk.DISABLED)
 
     def limpieza(self):
         """Actualiza la interfaz de usuario basada en el estado del juego."""
@@ -232,32 +259,31 @@ class SudokuGame:
 
     def cursor(self, x):
         """Mueve el cursor en la dirección especificada."""
-        if self.eval() == False:
-            self.botonc.config(background="silver")
-            if x == "^" and self.k > 0:
-                if self.a1[self.k][self.y] != 0:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
-                else:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
-                self.k -= 1
-            elif x == "v" and self.k < 8:
-                if self.a1[self.k][self.y] != 0:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
-                else:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
-                self.k += 1
-            elif x == ">" and self.y < 8:
-                if self.a1[self.k][self.y] != 0:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
-                else:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
-                self.y += 1
-            elif x == "<" and self.y > 0:
-                if self.a1[self.k][self.y] != 0:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
-                else:
-                    self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
-                self.y -= 1
+        self.botonc.config(background="silver")
+        if x == "^" and self.k > 0:
+            if self.a1[self.k][self.y] != 0:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
+            else:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
+            self.k -= 1
+        elif x == "v" and self.k < 8:
+            if self.a1[self.k][self.y] != 0:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
+            else:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
+            self.k += 1
+        elif x == ">" and self.y < 8:
+            if self.a1[self.k][self.y] != 0:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
+            else:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
+            self.y += 1
+        elif x == "<" and self.y > 0:
+            if self.a1[self.k][self.y] != 0:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="green", background="white", font=("Roboto Cn", 18), width=2)
+            else:
+                self.labels[f"strg{str(self.k) + str(self.y)}"].config(fg="black", background="white", width=2, font=("Roboto Cn", 18))
+            self.y -= 1
 
         self.eval()
         self.labels[f"strg{str(self.k) + str(self.y)}"].config(background="gold", width=2, font=("Roboto Cn", 18), bd=2)
