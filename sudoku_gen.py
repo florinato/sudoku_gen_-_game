@@ -1,5 +1,7 @@
 import random
+
 import numpy as np
+
 
 class NewSudokuGeneratorWithDiagonals:
     """Clase para generar y resolver tableros de Sudoku con reglas adicionales para diagonales."""
@@ -83,16 +85,14 @@ class NewSudokuGeneratorWithDiagonals:
         """
         np.savetxt(file_path, self.board, fmt='%d')
 
-# Ejemplo de uso
-new_sudoku_with_diagonals = NewSudokuGeneratorWithDiagonals()
-new_sudoku_with_diagonals.generate_sudoku()
-print(new_sudoku_with_diagonals.board)
+
+def main():
+    """Función principal para generar y guardar un Sudoku."""
+    generator = NewSudokuGeneratorWithDiagonals()
+    generator.generate_sudoku()
+    print(generator.board)
+    generator.save_to_file("sudoku.txt")
 
 
-file_path1 = 'test1.txt'
-new_sudoku_with_diagonals.save_to_file(file_path1)
-
-
-
-
-
+if __name__ == "__main__":
+    main()
